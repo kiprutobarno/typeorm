@@ -1,3 +1,4 @@
+import { Length } from "class-validator";
 import { Column, Entity, PrimaryGeneratedColumn, Index } from "typeorm";
 
 @Entity()
@@ -6,6 +7,7 @@ export class Todo {
   public id: number;
 
   @Column()
+  @Length(0, 10)
   public name: string = "";
 
   @Index()
