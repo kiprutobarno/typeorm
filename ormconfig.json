@@ -8,6 +8,14 @@
   "synchronize": false,
   "migrationsRun": true,
   "logging": true,
+  "cache": {
+    "type": "redis",
+    "duration": 30000,
+    "options": {
+      "host": "localhost",
+      "port": 6379
+    }
+  },
   "entities": ["dist/entity/*.js"],
   "migrations": ["dist/migration/*.js"],
   "subscribers": ["dist/subscriber/*.js"],
