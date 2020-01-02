@@ -1,14 +1,19 @@
 import { validate } from "class-validator";
 import { NextFunction, Request, Response } from "express";
-import { getConnection } from "typeorm";
+import { getConnection, Repository } from "typeorm";
 import Todo from "../entity/Todo";
-import TodoRepository from "../TodoRepository";
+import TodoRepository from "../entity/TodoRepository";
+import TodoMetadata from "../entity/TodoMetadata";
 
-let repository: TodoRepository;
+let initialized = false;
+let todoRepository: TodoRepository;
+let todoMetadataRepository: Repository<TodoMetadata>;
 
 const initialize = () => {
+  initialized = true;
   const connection = getConnection();
-  repository = connection.getCustomRepository(TodoRepository);
+  todoRepository = connection.getCustomRepository(TodoRepository);
+  todoMetadataRepository = connection.getRepository(TodoMetadata);
 };
 
 export const createTodo = async (
@@ -16,10 +21,12 @@ export const createTodo = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (repository === undefined) {
+  if (todoRepository === undefined) {
     initialize();
   }
   try {
+    const todoMetadata = new TodoMetadata();
+    todoMetadata.comment = "Hello comment";
     const todo = new Todo();
     todo.name = "A Todo";
     todo.isComplete = true;
@@ -27,7 +34,10 @@ export const createTodo = async (
     if (errors.length > 0) {
       throw 400;
     }
-    await repository.save(todo);
+
+    todo.metadata = todoMetadata;
+    await todoMetadataRepository.save(todoMetadata);
+    await todoRepository.save(todo);
     res.send(todo);
   } catch (error) {
     if (error === 400) {
@@ -43,11 +53,11 @@ export const readTodos = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (repository === undefined) {
+  if (todoRepository === undefined) {
     initialize();
   }
   try {
-    const todos = await repository.find();
+    const todos = await todoRepository.find();
     res.send(todos);
   } catch (error) {
     next(error);
@@ -59,11 +69,11 @@ export const readCompleteTodos = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (repository === undefined) {
+  if (todoRepository === undefined) {
     initialize();
   }
   try {
-    const todos = await repository.find({ isComplete: false });
+    const todos = await todoRepository.find({ isComplete: false });
     res.send(todos);
   } catch (error) {
     next(error);
@@ -75,11 +85,11 @@ export const readCompleteTodos2 = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (repository === undefined) {
+  if (todoRepository === undefined) {
     initialize();
   }
   try {
-    const todos = await repository.findIncomplete();
+    const todos = await todoRepository.findIncomplete();
     res.send(todos);
   } catch (error) {
     next(error);
