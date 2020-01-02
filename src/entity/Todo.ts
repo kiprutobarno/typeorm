@@ -6,9 +6,11 @@ import {
   Index,
   AfterInsert,
   JoinColumn,
-  OneToOne
+  OneToOne,
+  ManyToOne
 } from "typeorm";
 import TodoMetadata from "./TodoMetadata";
+import Author from "./Author";
 
 @Entity()
 export class Todo {
@@ -26,6 +28,13 @@ export class Todo {
   @OneToOne(() => TodoMetadata)
   @JoinColumn()
   public metadata: TodoMetadata;
+
+  @Index()
+  @ManyToOne(
+    () => Author,
+    author => author.todos
+  )
+  public author: Author;
 }
 
 export default Todo;
