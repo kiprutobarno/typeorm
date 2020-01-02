@@ -1,5 +1,5 @@
-import { AbstractRepository, EntityRepository, FindConditions } from 'typeorm';
-import Todo from './entity/Todo';
+import { AbstractRepository, EntityRepository, FindConditions } from "typeorm";
+import Todo from "./Todo";
 
 @EntityRepository(Todo)
 export default class TodoRepository extends AbstractRepository<Todo> {
@@ -8,19 +8,23 @@ export default class TodoRepository extends AbstractRepository<Todo> {
   }
 
   public find(conditions?: FindConditions<Todo>): Promise<Todo[]> {
-    return this.repository.find({
-      cache: true,
-      where: conditions,
-    })
-      .then((todos) => {
-        return todos.map((todo) => {
+    return this.repository
+      .find({
+        cache: true,
+        relations: ["metadata"],
+        where: conditions
+      })
+      .then(todos => {
+        return todos.map(todo => {
           return todo;
         });
       });
   }
 
   public findIncomplete(): Promise<Todo[]> {
-    return this.repository.createQueryBuilder('todo')
+    return this.repository
+      .createQueryBuilder("todo")
+      .innerJoinAndSelect("todo.metadata", "metadata")
       .where('todo."isComplete" = :value', { value: false })
       .cache(true)
       .getMany();

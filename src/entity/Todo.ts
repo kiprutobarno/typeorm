@@ -1,5 +1,14 @@
 import { Length } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn, Index } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Index,
+  AfterInsert,
+  JoinColumn,
+  OneToOne
+} from "typeorm";
+import TodoMetadata from "./TodoMetadata";
 
 @Entity()
 export class Todo {
@@ -13,6 +22,10 @@ export class Todo {
   @Index()
   @Column()
   public isComplete: boolean = false;
+
+  @OneToOne(() => TodoMetadata)
+  @JoinColumn()
+  public metadata: TodoMetadata;
 }
 
 export default Todo;
