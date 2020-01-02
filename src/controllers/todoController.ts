@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { validate } from "class-validator";
+import { Request, Response, NextFunction } from "express";
 import { getConnection, Repository } from "typeorm";
 import Todo from "../entity/Todo";
 
@@ -9,14 +10,26 @@ const initialize = () => {
   repository = connection.getRepository(Todo);
 };
 
-export const createTodo = async (_: Request, res: Response) => {
+export const createTodo = async (_: Request, res: Response, next:NextFunction) => {
   if (repository === undefined) {
     initialize();
   }
-  const todo = new Todo();
-  todo.name = "A todo";
-  await repository.save(todo);
-  res.send(todo);
+  try {
+    const todo = new Todo();
+    todo.name = "A todo";
+    const errors = await validate(todo);
+    if (errors.length > 0) {
+      throw 400;
+    }
+    await repository.save(todo);
+    res.send(todo);
+  } catch (error) {
+    if (error === 400) {
+      res.status(400).send("Bad Request");
+    } else {
+      next(error)
+    }
+  }
 };
 
 export const readTodo = async (_: Request, res: Response) => {
