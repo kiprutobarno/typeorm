@@ -1,19 +1,20 @@
 import { validate } from "class-validator";
 import { NextFunction, Request, Response } from "express";
-import { getConnection, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import Todo from "../entity/Todo";
 import TodoRepository from "../entity/TodoRepository";
 import TodoMetadata from "../entity/TodoMetadata";
 import Author from "../entity/Author";
+import { createConn } from "../utils/connection";
 
 let initialized = false;
 let todoRepository: TodoRepository;
 let todoMetadataRepository: Repository<TodoMetadata>;
 let authorRepository: Repository<Author>;
 
-const initialize = () => {
+const initialize = async () => {
   initialized = true;
-  const connection = getConnection();
+  const connection = await createConn();
   todoRepository = connection.getCustomRepository(TodoRepository);
   todoMetadataRepository = connection.getRepository(TodoMetadata);
   authorRepository = connection.getRepository(Author);
