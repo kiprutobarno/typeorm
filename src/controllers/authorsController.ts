@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { Repository, getConnection } from "typeorm";
 import Author from "../entity/Author";
+import { createConn } from "../utils/connection";
 
 let initialized = false;
 let authorRepository: Repository<Author>;
 
-const initialize = () => {
+const initialize = async () => {
   initialized = true;
-  const connection = getConnection();
+  const connection = await createConn();
   authorRepository = connection.getRepository(Author);
 };
 
