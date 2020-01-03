@@ -41,7 +41,7 @@ export const createTodo = async (
     todoMetadata.comment = "Hello comment";
     const todo = new Todo();
     todo.name = "A Todo";
-    todo.isComplete = true;
+    todo.isComplete = false;
     todo.author = author;
     const errors = await validate(todo);
     if (errors.length > 0) {
@@ -102,8 +102,8 @@ export const getInCompleteTodos = async (
     initialize();
   }
   try {
-    // const todos = await todoRepository.findIncomplete();
-    const todos = await todoRepository.find({ isComplete: false });
+    const todos = await todoRepository.findIncomplete();
+    // const todos = await todoRepository.find({ isComplete: false });
     res.send(todos);
   } catch (error) {
     next(error);
